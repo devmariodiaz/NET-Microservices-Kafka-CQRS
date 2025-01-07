@@ -1,7 +1,6 @@
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
 using Microsoft.EntityFrameworkCore;
-using Namespace;
 using Post.Post.Query.Repositories;
 using Post.Query.Domain.Repositories;
 using Post.Query.Infrastructure;
@@ -23,10 +22,21 @@ dataContext.Database.EnsureCreated();
 
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-builder.Services.AddScoped<IEventConsumer, EventConsumer>();
 builder.Services.AddScoped<IEventHandler, Post.Query.Infrastructure.Handlers.EventHandler>();
-builder.Services.Configure<ConsumerConfig>(builder.Configuration.GetSection(nameof(ConsumerConfig)));
 
+builder.Services.AddSingleton(new ConsumerConfig
+    {
+        BootstrapServers = "localhost:9092", // Replace with actual Kafka broker
+        GroupId = "SM_Consumer",              // Replace with actual group id
+        AutoOffsetReset = AutoOffsetReset.Earliest,
+        EnableAutoCommit = false,    
+        AllowAutoCreateTopics = true
+    });
+
+// builder.Services.Configure<ConsumerConfig>(builder.Configuration.GetSection(nameof(ConsumerConfig)));
+builder.Services.AddScoped<IEventConsumer, EventConsumer>();
+
+builder.Services.AddControllers();
 builder.Services.AddHostedService<ConsumerHostedService>();
 
 // Add services to the container.
@@ -42,29 +52,5 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
+app.MapControllers();
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

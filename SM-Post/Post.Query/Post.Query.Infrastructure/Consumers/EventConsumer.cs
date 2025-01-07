@@ -5,7 +5,7 @@ using CQRS.Core.Events;
 using Post.Query.Infrastructure.Converters;
 using Post.Query.Infrastructure.Handlers;
 
-namespace Namespace;
+namespace Post.Query.Infrastructure.Consumers;
 public class EventConsumer : IEventConsumer
 {
     private readonly ConsumerConfig _config;
@@ -16,7 +16,7 @@ public class EventConsumer : IEventConsumer
         _eventHandler = eventHandler;        
     }
 
-    public void Consume(string topic)
+    public void Consume<T>(string topic) where T : BaseEvent
     {
         using var consumer = new ConsumerBuilder<string, string>(_config)
                 .SetKeyDeserializer(Deserializers.Utf8)
@@ -30,9 +30,9 @@ public class EventConsumer : IEventConsumer
             var consumeResult = consumer.Consume();
             if(consumeResult == null) continue;
 
-            var options = new JsonSerializerOptions { Converters = { new EventJsonConverter() } };
-            var @event = JsonSerializer.Deserialize<BaseEvent>(consumeResult.Message.Value, options);
-            // var @event = JsonSerializer.Deserialize(consumeResult.Message.Value, typeof(T));
+            //var options = new JsonSerializerOptions { Converters = { new EventJsonConverter() } };
+            //var @event = JsonSerializer.Deserialize<BaseEvent>(consumeResult.Message.Value, options);
+            var @event = JsonSerializer.Deserialize(consumeResult.Message.Value, typeof(T));
             var handlerMethod = _eventHandler.GetType().GetMethod("On", new Type[]{ @event.GetType() });
 
             if(handlerMethod == null)

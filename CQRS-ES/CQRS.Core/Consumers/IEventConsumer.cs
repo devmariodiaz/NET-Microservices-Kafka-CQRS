@@ -1,5 +1,7 @@
+using CQRS.Core.Events;
+
 namespace CQRS.Core.Consumers;
 public interface IEventConsumer
 {
-    void Consume(string topic);
+    void Consume<T>(string topic) where T : BaseEvent;
 }

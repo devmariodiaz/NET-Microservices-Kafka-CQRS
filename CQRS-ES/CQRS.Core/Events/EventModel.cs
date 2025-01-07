@@ -9,6 +9,8 @@ public class EventModel
     public string Id { get; set; }
 
     public DateTime TimeStamp { get; set; }
+
+    //[BsonSerializer(typeof(MongoDB.Bson.Serialization.Serializers.GuidSerializer), GuidRepresentation.Standard)]
     public Guid AggregateIdentifier { get; set; }
     public string AggregateType { get; set; }
     public int Version { get; set; }

@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CQRS.Core.Domain;
 using CQRS.Core.Events;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using Post.Cmd.Infrastructure.Config;
 
@@ -15,6 +14,8 @@ public class EventStoreRepository : IEventStoreRepository
 
     public EventStoreRepository(IOptions<MongoDbConfig> config)
     {
+        BsonSerializer.RegisterSerializer(typeof(Guid), new GuidSerializer(GuidRepresentation.Standard));
+
         var mongoClient = new MongoClient(config.Value.ConnectionString);
         var mongoDatabase = mongoClient.GetDatabase(config.Value.Database);
         _eventStoreCollection = mongoDatabase.GetCollection<EventModel>(config.Value.Collection);
