@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Post.Query.Infrastructure;
+namespace Post.Query.Infrastructure.Consumers;
 public class ConsumerHostedService : IHostedService
 {
     private readonly ILogger<ConsumerHostedService> _logger;
