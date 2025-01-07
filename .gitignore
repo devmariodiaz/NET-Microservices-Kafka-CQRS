@@ -1,0 +1,10 @@
+.vscode/
+bin/
+obj/
+*.dll
+.vs/
+*.suo
+v17/
+CopilotIndices/
+DesignTimeBuild/
+FileContentIndex/
